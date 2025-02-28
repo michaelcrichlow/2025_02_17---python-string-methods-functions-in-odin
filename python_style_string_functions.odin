@@ -2,10 +2,8 @@ package python_string_functions
 
 import "base:runtime"
 import "core:fmt"
-import "core:math"
 import "core:mem"
 import "core:slice"
-import "core:strconv"
 import "core:strings"
 import "core:unicode"
 
@@ -23,6 +21,9 @@ comments!) I found this entire excercise helpful, so this is posted with the ide
 others as well. Cheers and happy coding! :)
 
 - Mike C (February 17, 2025)
+
+Added `rotate_left` and `rotate_right`
+- Mike C (February 28, 2025)
 */
 
 
@@ -104,10 +105,30 @@ Returns:
 */
 center :: strings.center_justify
 
-// Returns the number of runes in a string. I code primarily in English, so this should suffice for my needs. 
+// Returns the number of runes in a string.
 count :: proc(s: string, test_rune: rune) -> int {
 	total := 0
 	for val in s {
+		if val == test_rune {
+			total += 1
+		}
+	}
+	return total
+}
+
+
+// Returns the number of runes in a string up to a space.
+count_until_space :: proc(s: string, test_rune: rune) -> int {
+	_index_of_space := index(s, " ")
+	_s : string
+	if _index_of_space != -1 {
+		_s = s[:_index_of_space]
+	} else {
+		_s = s
+	}
+	
+	total := 0
+	for val in _s {
 		if val == test_rune {
 			total += 1
 		}
@@ -525,6 +546,46 @@ rindex :: strings.last_index
 rjust :: strings.right_justify
 
 
+// Returns a string with the characters rotated one spot to the left: `band -> andb`
+rotate_left :: proc(s: string, allocator := context.allocator, loc := #caller_location) -> (final_string: string, err: mem.Allocator_Error) #optional_allocator_error {
+	// guard clauses
+	if len(s) == 0 || len(s) == 1 {
+		return s, nil
+	}
+	
+	b: strings.Builder
+	strings.builder_init(&b, 0, len(s), allocator) or_return // err is of type mem.Allocator_Error
+	// code goes here
+	for val in 1 ..< len(s) {
+		strings.write_rune(&b, rune(s[val]))
+	}
+	strings.write_rune(&b, rune(s[0]))
+	final_string = strings.to_string(b)
+	
+	return final_string, nil
+}
+
+
+// Returns a string with the characters rotated one spot to the right: `band -> dban`
+rotate_right :: proc(s: string, allocator := context.allocator, loc := #caller_location) -> (final_string: string, err: mem.Allocator_Error) #optional_allocator_error {
+	// guard clauses
+	if len(s) == 0 || len(s) == 1 {
+		return s, nil
+	}
+	
+	b: strings.Builder
+	strings.builder_init(&b, 0, len(s), allocator) or_return // err is of type mem.Allocator_Error
+	strings.write_rune(&b, rune(s[len(s) - 1]))
+	// code goes here
+	for val in 0 ..< len(s) - 1 {
+		strings.write_rune(&b, rune(s[val]))
+	}
+	final_string = strings.to_string(b)
+	
+	return final_string, nil
+}
+
+
 rpartition :: proc(str, sep: string) -> (head, match, tail: string) {
 	i := strings.last_index(str, sep)
 	if i == -1 {
@@ -612,7 +673,7 @@ zfill :: proc(s: string, length: int, allocator := context.allocator, loc := #ca
 	b: strings.Builder
 	strings.builder_init(&b, 0, max_len, allocator) or_return // err is of type mem.Allocator_Error
 	// code goes here
-	for i in 0 ..< num_of_zeroes_to_add {
+	for _ in 0 ..< num_of_zeroes_to_add {
 		strings.write_string(&b, "0")
 	}
 	strings.write_string(&b, s)
@@ -844,6 +905,23 @@ to_lower_rune :: proc(r: rune) -> rune {
 	
 	r_as_int += 32
 	return rune(r_as_int)
+}
+
+// Strips a string to its unique characters, in the same order
+strip_to_unique :: proc(s: string, allocator := context.allocator) -> (final_string: string, err: mem.Allocator_Error) #optional_allocator_error {
+	local_dict := make(map[rune]struct {}, allocator)
+
+	b: strings.Builder
+	strings.builder_init(&b, 0, len(s), allocator) or_return // err is of type mem.Allocator_Error
+	for val in s {
+		if val not_in local_dict {
+			local_dict[val] = {}
+			strings.write_rune(&b, val)
+		}
+	}
+	final_string = strings.to_string(b)
+
+	return final_string, nil
 }
 
 
