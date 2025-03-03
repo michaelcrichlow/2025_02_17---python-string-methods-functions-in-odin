@@ -126,7 +126,7 @@ count_until_space :: proc(s: string, test_rune: rune) -> int {
 	_s : string
 	if _index_of_space != -1 {		// means ' ' is in the string
 		_s = s[:_index_of_space]
-	} else {						// otherwise use the entire string (since ' ' is not in it)
+	} else {				// otherwise use the entire string (since ' ' is not in it)
 		_s = s
 	}
 	
