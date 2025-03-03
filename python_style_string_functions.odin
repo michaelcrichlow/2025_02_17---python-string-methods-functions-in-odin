@@ -19,11 +19,13 @@ I can approach them from a place of actually understanding how they work (which 
 So, what's here is a combination of my work and calling out to functions in the standard library (including some of the 
 comments!) I found this entire excercise helpful, so this is posted with the idea that hopefully it will be helpful to 
 others as well. Cheers and happy coding! :)
-
 - Mike C (February 17, 2025)
 
 Added `rotate_left` and `rotate_right`
 - Mike C (February 28, 2025)
+
+Added `strip_punctuation`
+- Mike C (March 03, 2025)
 */
 
 
@@ -608,6 +610,22 @@ split :: strings.split
 spiltlines :: strings.split_lines
 
 startswith :: strings.starts_with
+
+
+// Removes all characters that are not a letter, a number or a space.
+strip_punctuation :: proc(s: string, allocator := context.allocator, loc := #caller_location) -> (final_string: string, err: mem.Allocator_Error) #optional_allocator_error {
+	b: strings.Builder
+	strings.builder_init(&b, 0, len(s), allocator) or_return // err is of type mem.Allocator_Error
+	// code goes here
+	for val in s {
+		if isalnum(val) || val == ' ' {
+			strings.write_rune(&b, val)
+		}
+	}
+	final_string = strings.to_string(b)
+	
+	return final_string, nil
+}
 
 swapcase :: proc(s: string, allocator := context.allocator, loc := #caller_location) -> (final_string: string, err: mem.Allocator_Error) #optional_allocator_error {
 	b: strings.Builder
