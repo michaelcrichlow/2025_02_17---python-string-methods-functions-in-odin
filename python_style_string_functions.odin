@@ -119,13 +119,14 @@ count :: proc(s: string, test_rune: rune) -> int {
 }
 
 
-// Returns the number of runes in a string up to a space.
+// Returns the number of times 'test_rune' appears in a string before reaching a space character `' '`.
+// If no space character `' '` is present, returns the number of times 'test_rune' appears in the entire string.
 count_until_space :: proc(s: string, test_rune: rune) -> int {
 	_index_of_space := index(s, " ")
 	_s : string
-	if _index_of_space != -1 {
+	if _index_of_space != -1 {		// means ' ' is in the string
 		_s = s[:_index_of_space]
-	} else {
+	} else {						// otherwise use the entire string (since ' ' is not in it)
 		_s = s
 	}
 	
